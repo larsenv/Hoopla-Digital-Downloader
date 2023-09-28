@@ -98,6 +98,8 @@ for episode in iterate:
             "Output.mp4",
             "-i",
             "Output.m4a",
+            "-c",
+            "copy",
             title.replace(" / ", " - ") + ".mp4",
         ]
     )
