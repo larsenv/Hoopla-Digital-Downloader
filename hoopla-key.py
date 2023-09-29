@@ -83,8 +83,8 @@ for episode in iterate:
     print("Downloading...")
 
     subprocess.call(["yt-dlp", "--allow-unplayable-formats", url])
-    subprocess.call(["mv", glob.glob("*.mp4")[0], "Input.mp4"])
-    subprocess.call(["mv", glob.glob("*.m4a")[0], "Input.m4a"])
+    subprocess.call(["mv", glob.glob("Manifest*.mp4")[0], "Input.mp4"])
+    subprocess.call(["mv", glob.glob("Manifest*.m4a")[0], "Input.m4a"])
     subprocess.call(
         ["mp4decrypt", "--key", response.split("--key ")[1], "Input.mp4", "Output.mp4"]
     )
