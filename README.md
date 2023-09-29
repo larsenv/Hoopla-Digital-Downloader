@@ -1,6 +1,6 @@
 # Hoopla Digital Downloader
 
-This'll let you download from Hoopla Digital.
+This'll let you download audiobooks or videos from Hoopla Digital.
 
 You need a Widevine CDM L3 in pywidevine/L3/cdm/devices/android_generic/ in order to use it.
 

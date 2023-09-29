@@ -69,7 +69,7 @@ for episode in iterate:
 
     response = subprocess.run(
         [
-            "python3.8",
+            "python3",
             "l3.py",
             pssh,
             "https://lic.drmtoday.com/license-proxy-widevine/cenc/?specConform=true",
@@ -83,27 +83,35 @@ for episode in iterate:
     print("Downloading...")
 
     subprocess.call(["yt-dlp", "--allow-unplayable-formats", url])
-    subprocess.call(["mv", glob.glob("Manifest*.mp4")[0], "Input.mp4"])
-    subprocess.call(["mv", glob.glob("Manifest*.m4a")[0], "Input.m4a"])
-    subprocess.call(
-        ["mp4decrypt", "--key", response.split("--key ")[1], "Input.mp4", "Output.mp4"]
-    )
+    if len(glob.glob("*.mp4")) > 0:
+        subprocess.call(["mv", glob.glob("*.mp4")[0], "Input.mp4"])
+    subprocess.call(["mv", glob.glob("*.m4a")[0], "Input.m4a"])
+    if len(glob.glob("*.mp4")) > 0:
+        subprocess.call(
+            [
+                "mp4decrypt",
+                "--key",
+                response.split("--key ")[1],
+                "Input.mp4",
+                "Output.mp4",
+            ]
+        )
     subprocess.call(
         ["mp4decrypt", "--key", response.split("--key ")[1], "Input.m4a", "Output.m4a"]
     )
-    subprocess.call(
-        [
-            "ffmpeg",
-            "-i",
-            "Output.mp4",
-            "-i",
-            "Output.m4a",
-            "-c",
-            "copy",
-            title.replace(" / ", " - ") + ".mp4",
-        ]
-    )
-    print(["ffmpeg", "-i", "Output.mp4", "-i", "Output.m4a", title + ".mp4"])
+    if len(glob.glob("*.mp4")) > 0:
+        subprocess.call(
+            [
+                "ffmpeg",
+                "-i",
+                "Output.mp4",
+                "-i",
+                "Output.m4a",
+                title.replace("/", "-") + ".mp4",
+            ]
+        )
+    else:
+        subprocess.call(["mv", "Output.m4a", title.replace("/", "-") + ".m4a"])
     subprocess.call(["rm", "Input.mp4"])
     subprocess.call(["rm", "Input.m4a"])
     subprocess.call(["rm", "Output.mp4"])
