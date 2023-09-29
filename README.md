@@ -11,6 +11,6 @@ You will have to install the requirements by running `pip install -r requirement
 
 ## Instructions to grab your Hoopla Digital token
 
-1. Borrow an item on Hoopla.")
-2. Play the content and immediately open developer mode before the content loads."
+1. Borrow an item on Hoopla.
+2. Play the content and immediately open developer mode before the content loads.
 3. Grab the value of the dt-custom-data request header on the POST request to https://lic.drmtoday.com/license-proxy-widevine/cenc/.
