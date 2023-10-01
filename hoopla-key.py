@@ -43,14 +43,17 @@ if not iterate:
 for episode in iterate:
     title = episode["title"]
     url = "https://dash.hoopladigital.com/" + episode["mediaKey"] + "/Manifest.mpd"
-    pssh = (
-        requests.get(url)
-        .content.split(
-            b'<ContentProtection schemeIdUri="urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed">'
-        )[1]
-        .split(b"<cenc:pssh>")[1]
-        .split(b"</cenc:pssh>")[0]
-    ).decode("utf-8")
+    try:
+        pssh = (
+            requests.get(url)
+            .content.split(
+                b'<ContentProtection schemeIdUri="urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed">'
+            )[1]
+            .split(b"<cenc:pssh>")[1]
+            .split(b"</cenc:pssh>")[0]
+        ).decode("utf-8")
+    except:
+        continue
 
     with open("headers.py", "wb") as f:
         f.write(
