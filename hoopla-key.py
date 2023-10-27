@@ -15,11 +15,7 @@ headers = {
     "content-type": "application/json",
 }
 
-if "/" in sys.argv[1]:
-    hoopla_code = sys.argv[1].split("/")[-1]
-else:
-    hoopla_code = sys.argv[1]
-
+hoopla_code = sys.argv[1].split("/")[-1] if "/" in sys.argv[1] else sys.argv[1]
 json_data = {
     "operationName": "FETCH_TITLE_DETAIL",
     "variables": {
@@ -81,15 +77,15 @@ for episode in iterate:
         text=True,
     ).stdout
 
-    print(url + ": " + title + ": " + "--key " + response.split("--key ")[1])
+    print(f"{url}: {title}: --key " + response.split("--key ")[1])
 
     print("Downloading...")
 
     subprocess.call(["yt-dlp", "--allow-unplayable-formats", url])
-    if len(glob.glob("*.mp4")) > 0:
+    if glob.glob("*.mp4"):
         subprocess.call(["mv", glob.glob("*.mp4")[0], "Input.mp4"])
     subprocess.call(["mv", glob.glob("*.m4a")[0], "Input.m4a"])
-    if len(glob.glob("*.mp4")) > 0:
+    if glob.glob("*.mp4"):
         subprocess.call(
             [
                 "mp4decrypt",
@@ -102,7 +98,7 @@ for episode in iterate:
     subprocess.call(
         ["mp4decrypt", "--key", response.split("--key ")[1], "Input.m4a", "Output.m4a"]
     )
-    if len(glob.glob("*.mp4")) > 0:
+    if glob.glob("*.mp4"):
         subprocess.call(
             [
                 "ffmpeg",

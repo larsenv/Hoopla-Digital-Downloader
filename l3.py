@@ -49,7 +49,7 @@ correct, keys = WV_Function(pssh, lic_url)
 
 print()
 for key in keys:
-    print("--key " + key)
+    print(f"--key {key}")
 
 # 建立key_string字符串, 使得所有key进行如下变换: ①添加前缀"--key" ②使得每一个带有前缀的key以空格的形式连接起来(方便multi-keys时一键复制)
 key_string = " ".join([f"--key {key}" for key in keys])

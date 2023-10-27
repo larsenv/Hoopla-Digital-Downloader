@@ -25,14 +25,15 @@ class Cdm:
         self.sessions = {}
 
     def open_session(self, init_data_b64, device, raw_init_data = None, offline=False):
-        self.logger.debug("open_session(init_data_b64={}, device={}".format(init_data_b64, device))
+        self.logger.debug(
+            f"open_session(init_data_b64={init_data_b64}, device={device}"
+        )
         self.logger.info("opening new cdm session")
         if device.session_id_type == 'android':
             # format: 16 random hexdigits, 2 digit counter, 14 0s
             rand_ascii = ''.join(random.choice('ABCDEF0123456789') for _ in range(16))
-            counter = '01' # this resets regularly so its fine to use 01
             rest = '00000000000000'
-            session_id = rand_ascii + counter + rest
+            session_id = f'{rand_ascii}01{rest}'
             session_id = session_id.encode('ascii')
         elif device.session_id_type == 'chrome':
             rand_bytes = get_random_bytes(16)
@@ -76,18 +77,20 @@ class Cdm:
         return parsed_init_data
 
     def close_session(self, session_id):
-        self.logger.debug("close_session(session_id={})".format(session_id))
+        self.logger.debug(f"close_session(session_id={session_id})")
         self.logger.info("closing cdm session")
         if session_id in self.sessions:
             self.sessions.pop(session_id)
             self.logger.info("cdm session closed")
             return 0
         else:
-            self.logger.info("session {} not found".format(session_id))
+            self.logger.info(f"session {session_id} not found")
             return 1
 
     def set_service_certificate(self, session_id, cert_b64):
-        self.logger.debug("set_service_certificate(session_id={}, cert={})".format(session_id, cert_b64))
+        self.logger.debug(
+            f"set_service_certificate(session_id={session_id}, cert={cert_b64})"
+        )
         self.logger.info("setting service certificate")
 
         if session_id not in self.sessions:
@@ -130,7 +133,7 @@ class Cdm:
         return 0
 
     def get_license_request(self, session_id):
-        self.logger.debug("get_license_request(session_id={})".format(session_id))
+        self.logger.debug(f"get_license_request(session_id={session_id})")
         self.logger.info("getting license request")
 
         if session_id not in self.sessions:
@@ -238,11 +241,15 @@ class Cdm:
         for line in text_format.MessageToString(session.license_request).splitlines():
             self.logger.debug(line)
         self.logger.info("license request created")
-        self.logger.debug("license request b64: {}".format(base64.b64encode(license_request.SerializeToString())))
+        self.logger.debug(
+            f"license request b64: {base64.b64encode(license_request.SerializeToString())}"
+        )
         return license_request.SerializeToString()
 
     def provide_license(self, session_id, license_b64):
-        self.logger.debug("provide_license(session_id={}, license_b64={})".format(session_id, license_b64))
+        self.logger.debug(
+            f"provide_license(session_id={session_id}, license_b64={license_b64})"
+        )
         self.logger.info("decrypting provided license")
 
         if session_id not in self.sessions:
@@ -318,7 +325,9 @@ class Cdm:
         lic_hmac = HMAC.new(session.derived_keys['auth_1'], digestmod=SHA256)
         lic_hmac.update(license.Msg.SerializeToString())
 
-        self.logger.debug("calculated sig: {} actual sig: {}".format(lic_hmac.hexdigest(), binascii.hexlify(license.Signature)))
+        self.logger.debug(
+            f"calculated sig: {lic_hmac.hexdigest()} actual sig: {binascii.hexlify(license.Signature)}"
+        )
 
         if lic_hmac.digest() != license.Signature:
             self.logger.info("license signature doesn't match - writing bin so they can be debugged")
@@ -328,7 +337,7 @@ class Cdm:
                 f.write(license.SerializeToString())
             self.logger.info("continuing anyway")
 
-        self.logger.debug("key count: {}".format(len(license.Msg.Key)))
+        self.logger.debug(f"key count: {len(license.Msg.Key)}")
         for key in license.Msg.Key:
             if key.Id:
                 key_id = key.Id
@@ -340,15 +349,15 @@ class Cdm:
 
             cipher = AES.new(session.derived_keys['enc'], AES.MODE_CBC, iv=iv)
             decrypted_key = cipher.decrypt(encrypted_key)
+            permissions = []
             if type == "OPERATOR_SESSION":
-                permissions = []
                 perms = key._OperatorSessionKeyPermissions
-                for (descriptor, value) in perms.ListFields():
-                    if value == 1:
-                        permissions.append(descriptor.name)
+                permissions.extend(
+                    descriptor.name
+                    for descriptor, value in perms.ListFields()
+                    if value == 1
+                )
                 print(permissions)
-            else:
-                permissions = []
             session.keys.append(Key(key_id, type, Padding.unpad(decrypted_key, 16), permissions))
 
         self.logger.info("decrypted all keys")
@@ -357,6 +366,5 @@ class Cdm:
     def get_keys(self, session_id):
         if session_id in self.sessions:
             return self.sessions[session_id].keys
-        else:
-            self.logger.error("session not found")
-            return 1
+        self.logger.error("session not found")
+        return 1

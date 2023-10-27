@@ -26,4 +26,4 @@ correct, keys = WV_Function(pssh, lic_url)
 
 print()
 for key in keys:
-    print('--key ' + key)
+    print(f'--key {key}')
